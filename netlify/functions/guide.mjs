@@ -1,25 +1,34 @@
 export default async (req) => {
-    if (req.method === "GET") {
-    const k = Netlify.env.get("GEMINI_API_KEY");
-    if (!k) return new Response("KEY MISSING: GEMINI_API_KEY is not set");
-    const t = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": k },
-      body: JSON.stringify({ contents: [{ parts: [{ text: "Say hi" }] }] }),
-    });
-    return new Response("Gemini status " + t.status + ": " + (await t.text()).slice(0, 400));
-  }
-  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
-  let b;
-  try { b = await req.json(); } catch { return new Response("Bad request", { status: 400 }); }
-  const cut = (v, n) => String(v ?? "").slice(0, n);
-  const city = cut(b.city, 60).trim();
-  if (!city) return new Response("City required", { status: 400 });
-  const origin = cut(b.origin, 60), from = cut(b.from, 10), to = cut(b.to, 10);
-  const tier = ["budget", "mid", "comfort"].includes(b.tier) ? b.tier : "mid";
-  const interest = cut(b.interest, 30);
+  const MODEL = "gemini-3.8-flash";
+  const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+  try {
+    const key = Netlify.env.get("GEMINI_API_KEY");
+    if (!key) return new Response("KEY MISSING", { status: 500 });
 
-  const prompt = `You are a travel guide writer. Make a trip guide for "${city}".
+    const ask = (text, temp) =>
+      fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text }] }],
+          generationConfig: { responseMimeType: "application/json", temperature: temp },
+        }),
+      });
+
+    if (req.method === "GET") {
+      const t = await ask('Reply with JSON {"ok":true}', 0);
+      return new Response("Gemini status " + t.status + ": " + (await t.text()).slice(0, 400));
+    }
+
+    const b = await req.json();
+    const cut = (v, n) => String(v ?? "").slice(0, n);
+    const city = cut(b.city, 60).trim();
+    if (!city) return new Response("City required", { status: 400 });
+    const origin = cut(b.origin, 60), from = cut(b.from, 10), to = cut(b.to, 10);
+    const tier = ["budget", "mid", "comfort"].includes(b.tier) ? b.tier : "mid";
+    const interest = cut(b.interest, 30);
+
+    const prompt = `You are a travel guide writer. Make a trip guide for "${city}".
 Dates: ${from} to ${to}. Travelling from: ${origin || "not given"}. Budget tier: ${tier}. Main interest: ${interest || "general"}.
 If "${city}" is not a real place, return {"error":"unknown place"}.
 Return ONLY JSON in exactly this shape:
@@ -31,26 +40,15 @@ Return ONLY JSON in exactly this shape:
 "perDay":approx total cost per person per day in INR for the ${tier} tier}
 Give 6 places, 6 foods, 3 stays that fit the ${tier} budget. Put the main interest first. Prices are estimates.`;
 
-  try {
-    const r = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": Netlify.env.get("GEMINI_API_KEY") },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0.6 },
-        }),
-      }
-    );
-    if (!r.ok) return new Response("AI error", { status: 502 });
+    const r = await ask(prompt, 0.6);
+    if (!r.ok) return new Response("AI error " + r.status, { status: 502 });
     const data = await r.json();
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     text = text.replace(/```json|```/g, "").trim();
     const guide = JSON.parse(text);
     if (guide.error) return new Response("Unknown place", { status: 404 });
     return new Response(JSON.stringify(guide), { headers: { "Content-Type": "application/json" } });
-  } catch {
-    return new Response("Server error", { status: 500 });
+  } catch (e) {
+    return new Response("Function error: " + e.message, { status: 500 });
   }
 };

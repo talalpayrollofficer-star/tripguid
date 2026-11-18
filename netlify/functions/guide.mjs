@@ -1,4 +1,14 @@
 export default async (req) => {
+    if (req.method === "GET") {
+    const k = Netlify.env.get("GEMINI_API_KEY");
+    if (!k) return new Response("KEY MISSING: GEMINI_API_KEY is not set");
+    const t = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": k },
+      body: JSON.stringify({ contents: [{ parts: [{ text: "Say hi" }] }] }),
+    });
+    return new Response("Gemini status " + t.status + ": " + (await t.text()).slice(0, 400));
+  }
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   let b;
   try { b = await req.json(); } catch { return new Response("Bad request", { status: 400 }); }

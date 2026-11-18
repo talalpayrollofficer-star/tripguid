@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wanderly – Tour Guide</title>
+<style>
+:root{--bg:#f6f6f7;--card:#fff;--in:#ececef;--tx:#17171a;--mu:#6b6b75;--ac:#ff4560;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121212;--card:#1e1e1e;--in:#1f1f1f;--tx:#fff;--mu:#a0a0a8}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:760px;margin:0 auto;padding:24px 18px 60px}
+h1{font-size:30px;margin:0 0 6px}p.s{color:var(--mu);margin:0 0 18px}
+input{width:100%;background:var(--in);color:var(--tx);border:0;border-radius:16px;padding:16px 18px;font:inherit;margin-bottom:12px}
+.big{border-radius:40px;font-size:18px;padding:20px 26px}
+.r{display:flex;gap:12px}.r>div{flex:1}label{font-size:13px;color:var(--mu);display:block;margin:0 0 4px}
+.ch{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.c{border:0;background:var(--in);color:var(--tx);padding:12px 20px;border-radius:30px;font:inherit;font-weight:600;cursor:pointer}
+.c.on{background:var(--ac);color:#fff}
+.go{width:100%;border:0;background:var(--ac);color:#fff;font:inherit;font-weight:700;padding:18px;border-radius:40px;cursor:pointer;margin-top:4px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:14px 0;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:2}
+.tabs .c{white-space:nowrap}
+.m{columns:2 220px;column-gap:14px}
+.k{break-inside:avoid;background:var(--card);border-radius:18px;margin-bottom:14px;overflow:hidden}
+.k .im{height:110px;display:flex;align-items:center;justify-content:center;font-size:44px}
+.k .b{padding:12px 14px 14px}.k h3{margin:0 0 4px;font-size:16px}.k p{margin:0;color:var(--mu);font-size:14px}
+.t{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;background:var(--in);padding:3px 10px;border-radius:20px}
+.hl{outline:2px solid var(--ac)}
+.sum{background:var(--card);border-radius:18px;padding:16px;margin:14px 0}
+.bar{display:flex;height:12px;border-radius:8px;overflow:hidden;margin:10px 0}
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--mu)}
+a{color:var(--ac)}.bk{background:none;border:0;color:var(--ac);font:inherit;cursor:pointer;padding:0;margin-bottom:10px}
+</style></head><body><div class="w" id="app"></div>
+<script>
+const D={
+madurai:{n:"Madurai",e:"🛕",sum:"Tamil Nadu’s ancient temple city, famous for the Meenakshi Amman Temple, late-night food streets and flower markets. Compact and easy to cover in 2–3 days.",best:"Oct–Mar (cooler, festival season)",
+pl:[["Meenakshi Amman Temple","Towering gopurams and carved halls. Go early or after 5 pm.","heritage","🛕"],["Thirumalai Nayakkar Mahal","17th-century palace with grand arches; evening light show.","heritage","🏛️"],["Vandiyur Teppakulam","Large temple tank, calm at sunset.","nature","🌅"],["Gandhi Memorial Museum","Museum in a former palace with freedom-movement history.","heritage","🖼️"],["Alagar Koil","Hill temple north of town amid greenery.","nature","⛰️"],["Pudhu Mandapam & Markets","Tailoring stalls, jasmine and bargain shopping.","shopping","🛍️"]],
+fd:[["Jigarthanda","Madurai’s signature cold milk-almond gum dessert drink.","food","🥤"],["Kari Dosa","Crisp dosa topped with spiced mutton mince.","food","🍳"],["Parotta & Salna","Flaky layered bread with spicy gravy; the late-night classic.","food","🫓"],["Murugan Idli Shop","Famous for soft idlis with many chutneys.","food","🍚"],["Paruthi Paal","Warm cottonseed milk, a local winter drink.","food","🥛"],["Amma Mess / Konar Mess","Non-veg meals the Madurai way.","food","🍗"]],
+tr:"From Kerala: road via Theni–Kumily/Bodi from Munnar, or Kottayam–Kumily–Theni–Madurai; trains run from Kochi and Thiruvananthapuram to Madurai Junction. Local: autos, app cabs, walkable temple area."},
+kochi:{n:"Kochi",e:"⛵",sum:"Kerala’s harbour city: Chinese fishing nets, colonial Fort Kochi, spice markets and great seafood.",best:"Nov–Feb",
+pl:[["Fort Kochi & Chinese Nets","Seafront walk at sunset.","nature","🎣"],["Mattancherry Palace","Dutch palace with Kerala murals.","heritage","🏰"],["Jew Town & Spice Market","Antique shops, spices, cafés.","shopping","🧂"],["Marine Drive","Evening promenade by the backwaters.","nature","🌇"],["Kathakali Show","Classical dance drama with makeup demo.","heritage","🎭"]],
+fd:[["Karimeen Pollichathu","Pearl-spot fish wrapped in banana leaf.","food","🐟"],["Appam & Stew","Soft lacy rice pancakes with coconut stew.","food","🥞"],["Kerala Meals","Sadya-style rice meal on banana leaf.","food","🍛"],["Kayees-style Biryani","Local Malabar biryani.","food","🍚"]],
+tr:"Metro and water metro in the city, buses, autos and app cabs. Ferries link Fort Kochi and Ernakulam."},
+munnar:{n:"Munnar",e:"🍃",sum:"Rolling tea estates and cool mountain air in the Western Ghats. Ideal for a slow 2–3 day nature break.",best:"Sep–Mar",
+pl:[["Tea Gardens & Tea Museum","Walk estates and see how tea is made.","nature","🍵"],["Eravikulam National Park","Home of the Nilgiri tahr; book in advance.","nature","🐐"],["Mattupetty Dam","Boating and scenic views.","nature","🚤"],["Top Station","Panoramic viewpoint on the TN border.","nature","🌄"],["Spice Plantations","Cardamom, pepper and clove tours.","shopping","🌶️"]],
+fd:[["Tapioca & Fish Curry","Kerala hill-country comfort food.","food","🍲"],["Fresh Tea & Homemade Chocolate","Buy at estate shops.","food","🍫"],["Kerala Parotta & Beef/Veg Curry","Staple local dinner.","food","🫓"]],
+tr:"Road from Kochi (about 4–5 hrs) or via Theni/Madurai. Hire a taxi or jeep locally; hills are slow, plan buffer time."},
+chennai:{n:"Chennai",e:"🌊",sum:"Tamil Nadu’s capital: long beaches, old temples, filter coffee and excellent South Indian food.",best:"Nov–Feb",
+pl:[["Marina Beach","One of the longest urban beaches; go at sunrise.","nature","🏖️"],["Kapaleeshwarar Temple","Colourful Dravidian temple in Mylapore.","heritage","🛕"],["Fort St George & Museum","Early British fort in India.","heritage","🏰"],["T. Nagar","Sarees, jewellery, street shopping.","shopping","🛍️"],["Mahabalipuram (day trip)","Shore temples and rock carvings.","heritage","🗿"]],
+fd:[["Filter Coffee","Strong decoction with frothy milk.","food","☕"],["Idli, Dosa, Pongal","Classic tiffin breakfast.","food","🍽️"],["Chettinad Meals","Spicy, aromatic regional cuisine.","food","🍛"],["Sundal on the Beach","Evening beach snack.","food","🥜"]],
+tr:"Suburban trains, metro, buses and app cabs. Airport MAA; Chennai Central and Egmore for trains."}};
+const ST={budget:[["Dorms / budget lodges","₹800–1,800 / night","🛏️"],["Homestays","₹1,200–2,200 / night","🏠"]],mid:[["3-star hotels","₹2,500–5,000 / night","🏨"],["Boutique / heritage stays","₹3,500–6,500 / night","🏡"]],comfort:[["4–5 star hotels","₹7,000–15,000 / night","🏩"],["Luxury resorts / palaces","₹10,000+ / night","🌴"]]};
+const PD={budget:1500,mid:3500,comfort:8000};
+const S={tier:"mid",q:"",f:"",to:"",d1:"",d2:"",int:"food",tab:"summary"};
+const $=s=>document.querySelector(s),app=$("#app");
+const hue=s=>[...s].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%360;
+const iso=d=>d.toISOString().slice(0,10),T=new Date(),T3=new Date(Date.now()+86400000*3);
+S.d1=iso(T);S.d2=iso(T3);
+const find=q=>{q=q.trim().toLowerCase();return D[q]||Object.values(D).find(c=>c.n.toLowerCase().startsWith(q)&&q.length>2)};
+function card(x){const h=hue(x[0]),m=S.int&&x[2]&&S.int.toLowerCase()===x[2];
+return `<div class="k${m?" hl":""}"><div class="im" style="background:linear-gradient(135deg,hsl(${h} 70% 45%),hsl(${(h+50)%360} 75% 60%))">${x[3]}</div><div class="b"><h3>${x[0]}</h3><p>${x[1]}</p>${x[2]?`<span class="t">${x[2]}</span>`:""}</div></div>`}
+function home(){app.innerHTML=`<h1>Where to?</h1><p class="s">Search a place and your dates. Get places, food, stays, transport and a budget, all worked out for you.</p>
+<input class="big" id="q" placeholder="Search a city, e.g. Madurai" value="${E(S.q)}">
+<div class="r"><div><label>From</label><input type="date" id="d1" value="${S.d1}"></div><div><label>To</label><input type="date" id="d2" value="${S.d2}"></div></div>
+<input id="f" placeholder="Travelling from (e.g. Kerala)" value="${E(S.f)}">
+<div class="ch">${["budget","mid","comfort"].map(t=>`<button class="c${S.tier===t?" on":""}" data-t="${t}">${{budget:"Budget",mid:"Mid-range",comfort:"Comfortable"}[t]}</button>`).join("")}</div>
+<div class="ch">${["food","heritage","nature","shopping"].map(t=>`<button class="c${S.int===t?" on":""}" data-i="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join("")}</div>
+<button class="go" id="go">Show me the guide</button>
+<p class="s" style="margin-top:26px">Popular guides</p><div class="ch">${Object.values(D).map(c=>`<button class="c" data-c="${c.n}">${c.e} ${c.n}</button>`).join("")}</div>`;
+$("#q").oninput=e=>S.q=e.target.value;$("#f").oninput=e=>S.f=e.target.value;$("#d1").onchange=e=>S.d1=e.target.value;$("#d2").onchange=e=>S.d2=e.target.value;
+app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.tier=b.dataset.t;home()});
+app.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{S.int=b.dataset.i;home()});
+app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{S.q=b.dataset.c;S.tab="summary";guide()});
+$("#go").onclick=()=>{S.tab="summary";guide()}}
+const E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const clean=v=>typeof v=="string"?E(v):Array.isArray(v)?v.map(clean):v&&typeof v=="object"?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,clean(x)])):v;
+async function load(){const key="g:"+[S.q.trim().toLowerCase(),S.f,S.d1,S.d2,S.tier,S.int].join("|");
+try{const c=localStorage.getItem(key);if(c)return clean(JSON.parse(c))}catch(e){}
+app.innerHTML='<p class="s" style="margin-top:40px">✨ Building your guide…</p>';
+try{const r=await fetch("/.netlify/functions/guide",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({city:S.q,origin:S.f,from:S.d1,to:S.d2,tier:S.tier,interest:S.int})});
+if(!r.ok)throw 0;const c=await r.json();if(!c||!Array.isArray(c.pl)||!Array.isArray(c.fd))throw 0;
+try{localStorage.setItem(key,JSON.stringify(c))}catch(e){}return clean(c)}catch(e){return find(S.q)}}
+async function guide(){if(!S.q.trim())return;const c=await load();
+if(!c){app.innerHTML=`<button class="bk" id="b">← Back</button><h1>“${E(S.q)||"…"}” couldn’t be loaded</h1><p class="s">The AI guide is unavailable right now and this offline backup only has ${Object.values(D).map(x=>x.n).join(", ")}. Try again later, or open free guides:</p><div class="sum"><a target="_blank" rel="noopener" href="https://en.wikivoyage.org/w/index.php?search=${encodeURIComponent(S.q)}">Wikivoyage travel guide</a><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/${encodeURIComponent("things to do in "+S.q)}">Things to do on Google Maps</a><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/${encodeURIComponent("best restaurants in "+S.q)}">Restaurants on Google Maps</a></div>`;$("#b").onclick=home;return}
+const stl=Array.isArray(c.st)&&c.st.length?c.st:stl;const days=Math.max(1,Math.round((new Date(S.d2)-new Date(S.d1))/864e5)+1),pd=Number(c.perDay)||PD[S.tier];
+const sp={Stay:.4,Food:.25,Transport:.2,Activities:.15},col=["#ff4560","#ffa94d","#4dabf7","#69db7c"];
+const tabs={summary:"Summary",pl:"Places",fd:"Food",st:"Stays",tr:"Transport",bd:"Budget"};
+let body="";
+if(S.tab==="summary")body=`<div class="sum"><b>${c.e} ${c.n}, ${days} day${days>1?"s":""}</b><p class="s" style="margin-top:8px">${c.sum}</p><p>Best time: <b>${c.best}</b><br>Est. budget: <b>₹${(pd*days).toLocaleString("en-IN")}</b> per person${S.f?`<br>Coming from: <b>${E(S.f)}</b>`:""}</p></div><div class="m">${[...c.pl.slice(0,2),...c.fd.slice(0,2),...stl.slice(0,1).map(x=>[x[0],x[1],"stay",x[2]])].map(card).join("")}</div>`;
+if(S.tab==="pl")body=`<div class="m">${c.pl.map(card).join("")}</div>`;
+if(S.tab==="fd")body=`<div class="m">${c.fd.map(card).join("")}</div>`;
+if(S.tab==="st")body=`<div class="m">${stl.map(x=>card([x[0],x[1],S.tier,x[2]])).join("")}</div><p class="s">Prices are rough estimates; check current rates.</p>`;
+if(S.tab==="tr")body=`<div class="sum">🚆 ${c.tr}${S.f?`<br><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/${encodeURIComponent(S.f)}/${encodeURIComponent(c.n)}">Route from ${S.f} on Google Maps</a>`:""}</div>`;
+if(S.tab==="bd")body=`<div class="sum"><b>₹${pd.toLocaleString("en-IN")} / day · ₹${(pd*days).toLocaleString("en-IN")} total</b><div class="bar">${Object.values(sp).map((v,i)=>`<div style="width:${v*100}%;background:${col[i]}"></div>`).join("")}</div><div class="lg">${Object.entries(sp).map(([k,v],i)=>`<span style="color:${col[i]}">●</span> ${k} ₹${Math.round(pd*days*v).toLocaleString("en-IN")}`).join("")}</div><p class="s" style="margin-top:10px">Estimates per person; pick another budget tier on the search page to compare.</p></div>`;
+app.innerHTML=`<button class="bk" id="b">← New search</button><h1>${c.e} ${c.n}</h1><p class="s">${S.d1} to ${S.d2} · ${{budget:"Budget",mid:"Mid-range",comfort:"Comfortable"}[S.tier]}${S.int?" · "+S.int:""}</p><div class="tabs">${Object.entries(tabs).map(([k,v])=>`<button class="c${S.tab===k?" on":""}" data-k="${k}">${v}</button>`).join("")}</div>${body}`;
+$("#b").onclick=home;app.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.k;guide()})}
+home();
+</script></body></html>
